@@ -1,0 +1,31 @@
+{
+  "name": "marketplace-api",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:cov": "vitest run --coverage",
+    "test:debug": "vitest --inspect-brk --inspect --logHeapUsage --threads=false",
+    "test:e2e": "vitest run --config ./vitest.config.e2e.ts",
+    "test:e2e:watch": "vitest --config ./vitest.config.e2e.ts"
+  },
+  "author": "José Guerra",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@eslint/js": "^9.19.0",
+    "@faker-js/faker": "^9.4.0",
+    "@rocketseat/eslint-config": "^2.2.2",
+    "@types/node": "^22.12.0",
+    "eslint": "^8.57.1",
+    "eslint-plugin-react": "^7.37.4",
+    "globals": "^15.14.0",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.22.0",
+    "vite": "^6.0.11",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^3.0.4"
+  }
+}
