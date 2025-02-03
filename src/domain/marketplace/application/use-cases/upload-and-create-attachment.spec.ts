@@ -1,6 +1,7 @@
 import { UploadAndCreateAttachmentUseCase } from "./upload-and-create-attachment";
 import { InMemoryAttachmentRepository } from "test/repositories/in-memory-attachment-repository";
 import { FakeUploader } from "test/storage/fake-uploader";
+import { InvalidAttachmentTypeError } from "./errors/invalid-attachment-type-error";
 
 let inMemoryAttachmentRepository: InMemoryAttachmentRepository
 let fakeUploader: FakeUploader
@@ -29,5 +30,17 @@ describe("RegisterSeller", () => {
         fileName: 'profile.png',
       }),
     )
+  })
+
+  it("should be able to register a seller", async () => {
+    const result = await sut.execute({
+      fileName: "profile.png",
+      fileType: "image/pdf",
+      body: Buffer.from("")
+    })
+
+    expect(result.isLeft()).toBe(true)
+    expect(result.value).toBeInstanceOf(InvalidAttachmentTypeError)
+
   })
 })

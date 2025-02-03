@@ -16,7 +16,7 @@ export class ProductAttachment extends Entity<ProductAttachmentProps> {
   }
 
   static create(props: ProductAttachmentProps, id?: UniqueEntityId) {
-    const attachment = new ProductAttachment(props,id)
+    const attachment = new ProductAttachment(props, id)
 
     return attachment
   }

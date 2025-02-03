@@ -2,13 +2,14 @@ import { Either, left, right } from "@/core/either"
 import { SellerRepository } from "../repositories/seller-repository"
 import { HashComparer } from "../cryptography/hash-comparer"
 import { Encrypter } from "../cryptography/encrypter"
+import { WrongCredentialsError } from "./errors/wrong-credentials-error"
 
 interface AuthenticateSellerUseCaseRequest {
   email: string
   password: string
 }
 
-type AuthenticateSellerUseCaseResponse = Either<Error, {
+type AuthenticateSellerUseCaseResponse = Either<WrongCredentialsError, {
   accessToken: string
 }>
 
@@ -26,13 +27,13 @@ export class AuthenticateSellerUseCase {
     const seller = await this.sellerRepository.findByEmail(email)
 
     if (!seller) {
-      return left(new Error('Invalid credentials'))
+      return left(new WrongCredentialsError())
     }
 
     const isPasswordValid = await this.hashComparer.compare(password, seller.password)
 
     if (!isPasswordValid) {
-      return left(new Error('Invalid credentials'))
+      return left(new WrongCredentialsError())
     }
 
     const accessToken = await this.encrypter.encrypt({ sub: seller.id.toString() })

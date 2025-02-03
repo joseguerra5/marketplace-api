@@ -2,6 +2,8 @@ import { Either, left, right } from "@/core/either"
 import { SellerRepository } from "../repositories/seller-repository"
 import { Seller } from "../../enterprise/entities/seller"
 import { HashGenerator } from "../cryptography/hash-generator"
+import { AlreadyInUseError } from "./errors/already-in-use"
+import { PasswordsDoNotMatch } from "./errors/password-dont-match"
 
 interface RegisterSellerUseCaseRequest {
   name: string
@@ -11,7 +13,7 @@ interface RegisterSellerUseCaseRequest {
   passwordConfirmation: string
 }
 
-type RegisterSellerUseCaseResponse = Either<Error, {
+type RegisterSellerUseCaseResponse = Either<AlreadyInUseError | PasswordsDoNotMatch, {
   seller: Seller
 }>
 
@@ -31,17 +33,17 @@ export class RegisterSellerUseCase {
     const sellerWithSameEmail = await this.sellerRepository.findByEmail(email)
 
     if (sellerWithSameEmail) {
-      return left(new Error('Email already in use'))
+      return left(new AlreadyInUseError('Email'))
     }
 
     const sellerWithSamePhone = await this.sellerRepository.findByPhone(phone)
 
     if (sellerWithSamePhone) {
-      return left(new Error('Phone already in use'))
+      return left(new AlreadyInUseError('Phone'))
     }
 
     if (password !== passwordConfirmation) {
-      return left(new Error('Passwords not match'))
+      return left(new PasswordsDoNotMatch())
     }
 
     const passwordHash = await this.hashGenerator.hash(password)

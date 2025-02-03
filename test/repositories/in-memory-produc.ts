@@ -6,7 +6,9 @@ export class InMemoryProductRepository implements ProductRepository {
   public items: Product[] = [];
 
   async save(product: Product): Promise<void> {
-    this.items.push(product);
+    const itemIndex = this.items.findIndex((item) => item.id.equals(product.id));
+
+    this.items[itemIndex] = product;
   }
   async findByid(id: string): Promise<Product | null> {
     const product = this.items.find((item) => item.id.toString() === id);
@@ -18,15 +20,15 @@ export class InMemoryProductRepository implements ProductRepository {
     return product;
   }
   async findManyBySellerId(sellerId: string,
-    {page}: PaginationParams
+    { page }: PaginationParams
   ): Promise<Product[]> {
     const Product = this.items
-    .filter((item) => item.sellerId.toString() === sellerId)
-    .slice((page - 1) * 20, page * 20)
+      .filter((item) => item.sellerId.toString() === sellerId)
+      .slice((page - 1) * 20, page * 20)
 
     return Product
   }
- 
+
 
   async create(attach: Product): Promise<void> {
     this.items.push(attach)

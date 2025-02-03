@@ -3,6 +3,11 @@ import { UniqueEntityId } from "@/core/entities/unique-entity-id";
 import { ProductAttachmentList } from "./product-attachment-list";
 import { Optional } from "@/core/types/optional";
 
+export enum ProductStatus {
+  available = "available",
+  cancelled = "cancelled",
+  sold = "sold",
+}
 export interface ProductProps {
   categoryId: UniqueEntityId
   sellerId: UniqueEntityId
@@ -10,6 +15,7 @@ export interface ProductProps {
   description: string
   priceInCents: number
   attachments: ProductAttachmentList
+  status?: ProductStatus | null
   createdAt: Date
   updatedAt?: Date | null
 }
@@ -51,19 +57,19 @@ export class Product extends Entity<ProductProps> {
   }
 
   set priceInCents(priceInCents: number) {
-    
 
-  if (isNaN(priceInCents)) {
+
+    if (isNaN(priceInCents)) {
       throw new Error("priceInCents inválido.");
-  }
+    }
 
-  if (Number.isInteger(priceInCents) && priceInCents > 100) {
+    if (Number.isInteger(priceInCents) && priceInCents > 100) {
       this.props.priceInCents = priceInCents
       this.touch()
       return
-  }
-  Math.round(priceInCents * 100);
-  this.props.priceInCents = priceInCents
+    }
+    Math.round(priceInCents * 100);
+    this.props.priceInCents = priceInCents
     this.touch()
   }
 
@@ -73,6 +79,14 @@ export class Product extends Entity<ProductProps> {
 
   set attachments(attachments: ProductAttachmentList) {
     this.props.attachments = attachments
+    this.touch()
+  }
+  get status() {
+    return this.props.status
+  }
+
+  set status(status: ProductStatus) {
+    this.props.status = status
     this.touch()
   }
 
@@ -88,14 +102,15 @@ export class Product extends Entity<ProductProps> {
     this.props.updatedAt = new Date()
   }
 
-    static create(
-      props: Optional<ProductProps, "createdAt">, id?: UniqueEntityId
-    ): Product {
-      const product = new Product({
-        ...props,
-        createdAt: props.createdAt ?? new Date()
-      }, id)
-  
-      return product
-    }
+  static create(
+    props: Optional<ProductProps, "createdAt" | "attachments">, id?: UniqueEntityId
+  ): Product {
+    const product = new Product({
+      ...props,
+      status: props.status ?? ProductStatus.available,
+      createdAt: props.createdAt ?? new Date()
+    }, id)
+
+    return product
+  }
 }

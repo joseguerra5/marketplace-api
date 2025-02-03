@@ -4,6 +4,7 @@ import { makeSeller } from "test/factories/make-seller";
 import { AuthenticateSellerUseCase } from "./authenticate-seller";
 import { FakeEncrypter } from "test/cryptography/fake-encrypter";
 import { UniqueEntityId } from "@/core/entities/unique-entity-id";
+import { WrongCredentialsError } from "./errors/wrong-credentials-error";
 
 let inMemorySellerRepository: InMemorySellerRepository
 let fakeHasher: FakeHasher
@@ -48,6 +49,7 @@ describe("RegisterSeller", () => {
     })
 
     expect(result.isLeft()).toBeTruthy()
+    expect(result.value).instanceOf(WrongCredentialsError)
   })
 
   it("should not be able to authenticate a seller with wrong credentials(password)", async () => {
@@ -63,5 +65,6 @@ describe("RegisterSeller", () => {
     })
 
     expect(result.isLeft()).toBeTruthy()
+    expect(result.value).instanceOf(WrongCredentialsError)
   })
 })

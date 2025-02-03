@@ -5,6 +5,8 @@ import { UniqueEntityId } from "@/core/entities/unique-entity-id"
 import { ProductAttachmentList } from "../../enterprise/entities/product-attachment-list"
 import { ProductAttachment } from "../../enterprise/entities/product-attachment"
 import { SellerRepository } from "../repositories/seller-repository"
+import { CategoryRepository } from "../repositories/category-repository"
+import { ValuesNotFoundError } from "./errors/value-not-found"
 
 interface CreateProductUseCaseRequest {
   categoryId: string
@@ -15,7 +17,7 @@ interface CreateProductUseCaseRequest {
   attachmentsIds: string[]
 }
 
-type CreateProductUseCaseResponse = Either<Error, {
+type CreateProductUseCaseResponse = Either<ValuesNotFoundError, {
   product: Product
 }>
 
@@ -23,6 +25,7 @@ export class CreateProductUseCase {
   constructor(
     private productRepository: ProductRepository,
     private sellerRepository: SellerRepository,
+    private categoryRepository: CategoryRepository,
   ) { }
 
   async execute({
@@ -33,29 +36,29 @@ export class CreateProductUseCase {
     priceInCents,
     attachmentsIds,
   }: CreateProductUseCaseRequest): Promise<CreateProductUseCaseResponse> {
-    const seller = this.sellerRepository.findByid(sellerId)
+    const seller = await this.sellerRepository.findByid(sellerId)
 
     if (!seller) {
-      return left(new Error("seller not exist"))
+      return left(new ValuesNotFoundError("Seller"))
     }
 
-    const category = this.sellerRepository.findByid(sellerId)
+    const category = await this.categoryRepository.findById(categoryId)
 
     if (!category) {
-      return left(new Error("category not exist"))
+      return left(new ValuesNotFoundError("Category"))
     }
 
     const attachmentEnpty = attachmentsIds.length === 0 || !attachmentsIds
 
     if (attachmentEnpty) {
-      return left(new Error("Attachments not found"))
+      return left(new ValuesNotFoundError("Attachment"))
     }
-    
+
     const product = Product.create({
-      attachments:new ProductAttachmentList([]),
+      attachments: new ProductAttachmentList([]),
       categoryId: new UniqueEntityId(categoryId),
       description,
-      priceInCents,
+      priceInCents: Number.isInteger(priceInCents) ? priceInCents : Math.round(priceInCents * 100),
       sellerId: new UniqueEntityId(sellerId),
       title,
     })

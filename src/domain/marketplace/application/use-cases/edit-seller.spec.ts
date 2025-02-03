@@ -3,6 +3,8 @@ import { FakeHasher } from "test/cryptography/fake-hasher";
 import { makeSeller } from "test/factories/make-seller";
 import { UniqueEntityId } from "@/core/entities/unique-entity-id";
 import { EditSellerUseCase } from "./edit-seller";
+import { AlreadyInUseError } from "./errors/already-in-use";
+import { NotAllowedError } from "@/core/errors/not-allowed-error";
 
 let inMemorySellerRepository: InMemorySellerRepository
 let fakeHasher: FakeHasher
@@ -38,6 +40,27 @@ describe("Edit Seller", () => {
     }))
   })
 
+  it("should not be able to edit a current seller with different id", async () => {
+    const seller1 = makeSeller({ password: "test-hashed" }, new UniqueEntityId("test"))
+    await inMemorySellerRepository.create(seller1)
+
+    const seller2 = makeSeller({ email: "johndoe@example.com" })
+    await inMemorySellerRepository.create(seller2)
+
+    const result = await sut.execute({
+      sellerId: "wrong-id",
+      email: "johndoe@example.com",
+      name: "new-name",
+      password: "test",
+      phone: "new-phone",
+      newPassword: "new-password"
+    })
+
+    expect(result.isLeft()).toBeTruthy()
+    expect(result.value).instanceOf(NotAllowedError)
+
+  })
+
   it("should not be able to edit a current seller with email already in use", async () => {
     const seller1 = makeSeller({ password: "test-hashed" }, new UniqueEntityId("test"))
     await inMemorySellerRepository.create(seller1)
@@ -55,6 +78,7 @@ describe("Edit Seller", () => {
     })
 
     expect(result.isLeft()).toBeTruthy()
+    expect(result.value).instanceOf(AlreadyInUseError)
 
   })
 
@@ -75,6 +99,7 @@ describe("Edit Seller", () => {
     })
 
     expect(result.isLeft()).toBeTruthy()
+    expect(result.value).instanceOf(AlreadyInUseError)
 
   })
 })

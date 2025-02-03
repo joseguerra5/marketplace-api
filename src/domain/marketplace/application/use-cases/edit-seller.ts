@@ -3,6 +3,9 @@ import { SellerRepository } from "../repositories/seller-repository";
 import { Seller } from "../../enterprise/entities/seller";
 import { HashGenerator } from "../cryptography/hash-generator";
 import { HashComparer } from "../cryptography/hash-comparer";
+import { NotAllowedError } from "@/core/errors/not-allowed-error";
+import { PasswordsDoNotMatch } from "./errors/password-dont-match";
+import { AlreadyInUseError } from "./errors/already-in-use";
 
 interface EditSellerUseCaseRequest {
   sellerId: string
@@ -13,7 +16,7 @@ interface EditSellerUseCaseRequest {
   newPassword?: string | null
 }
 
-type EditSellerUseCaseResponse = Either<Error, {
+type EditSellerUseCaseResponse = Either<NotAllowedError | PasswordsDoNotMatch | AlreadyInUseError, {
   seller: Seller
 }>
 
@@ -35,24 +38,24 @@ export class EditSellerUseCase {
     const seller = await this.sellerRepository.findByid(sellerId)
 
     if (!seller) {
-      return left(new Error('Seller not found'))
+      return left(new NotAllowedError())
     }
 
     const passwordIsValid = await this.hashComparer.compare(password, seller.password)
 
     if (!passwordIsValid) {
-      return left(new Error('Not allowed'))
+      return left(new NotAllowedError())
     }
 
     if (password === newPassword) {
-      return left(new Error('Password are same the old password'))
+      return left(new PasswordsDoNotMatch())
     }
 
     if (seller.phone !== phone) {
       const sellerWithSamePhone = await this.sellerRepository.findByPhone(phone)
 
       if (sellerWithSamePhone) {
-        return left(new Error('Phone already in use'))
+        return left(new AlreadyInUseError("Phone"))
       }
     }
 
@@ -60,7 +63,7 @@ export class EditSellerUseCase {
       const sellerWithSameEmail = await this.sellerRepository.findByEmail(email)
 
       if (sellerWithSameEmail) {
-        return left(new Error('Email already in use'))
+        return left(new AlreadyInUseError("Email"))
       }
     }
 

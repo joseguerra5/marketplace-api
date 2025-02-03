@@ -2,6 +2,7 @@ import { InMemorySellerRepository } from "test/repositories/in-memory-seller-rep
 import { RegisterSellerUseCase } from "./register-seller";
 import { FakeHasher } from "test/cryptography/fake-hasher";
 import { makeSeller } from "test/factories/make-seller";
+import { AlreadyInUseError } from "./errors/already-in-use";
 
 let inMemorySellerRepository: InMemorySellerRepository
 let fakeHasher: FakeHasher
@@ -54,6 +55,7 @@ describe("RegisterSeller", () => {
     })
 
     expect(result.isLeft()).toBeTruthy()
+    expect(result.value).toBeInstanceOf(AlreadyInUseError)
   })
 
   it("should not be able to register a seller with same phone", async () => {
@@ -70,5 +72,6 @@ describe("RegisterSeller", () => {
     })
 
     expect(result.isLeft()).toBeTruthy()
+    expect(result.value).toBeInstanceOf(AlreadyInUseError)
   })
 })
