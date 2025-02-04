@@ -41,7 +41,7 @@ export class EditProductUseCase {
   }: EditProductUseCaseRequest): Promise<EditProductUseCaseResponse> {
     let hasChanges = false
 
-    const product = await this.productRepository.findByid(productId)
+    const product = await this.productRepository.findById(productId)
 
     if (!product) {
       return left(new ValuesNotFoundError("Product"))
@@ -86,7 +86,6 @@ export class EditProductUseCase {
       product.priceInCents = priceInCents
       hasChanges = true
     }
-    console.log(attachmentsIds)
     const currentProductAttachments = await this.productAttachmentRepository.findManyByProductdId(productId)
 
     const productAttachmentList = new ProductAttachmentList(currentProductAttachments)

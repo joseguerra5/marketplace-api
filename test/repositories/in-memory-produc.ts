@@ -1,8 +1,10 @@
-import { PaginationParams } from "@/core/repositories/pagination-params";
+import { PaginationParams, PaginationProductsParams } from "@/core/repositories/pagination-params";
 import { ProductRepository } from "@/domain/marketplace/application/repositories/product-repository";
 import { Product } from "@/domain/marketplace/enterprise/entities/product";
 
 export class InMemoryProductRepository implements ProductRepository {
+  
+ 
   public items: Product[] = [];
 
   async save(product: Product): Promise<void> {
@@ -10,7 +12,7 @@ export class InMemoryProductRepository implements ProductRepository {
 
     this.items[itemIndex] = product;
   }
-  async findByid(id: string): Promise<Product | null> {
+  async findById(id: string): Promise<Product | null> {
     const product = this.items.find((item) => item.id.toString() === id);
 
     if (!product) {
@@ -19,6 +21,42 @@ export class InMemoryProductRepository implements ProductRepository {
 
     return product;
   }
+
+  async findMany({page}: PaginationParams): Promise<Product[]> {
+    const Product = this.items
+    .slice((page - 1) * 20, page * 20)
+
+    return Product
+  }
+
+  async findManyWithParams({page, search, status, sellerId}: PaginationProductsParams): Promise<Product[]> {
+      let filteredItems = this.items;
+
+      if(sellerId) {
+        filteredItems = filteredItems.filter(item =>
+          item.sellerId.toString() === sellerId
+      );
+      }
+
+      if(search) {
+        filteredItems = filteredItems.filter(item =>
+          item.title.toLowerCase().includes(search.toLowerCase()) ||
+          item.description.toLowerCase().includes(search.toLowerCase())
+      );
+      }
+
+      if (status) {
+        filteredItems = filteredItems.filter(item => item.status === status);
+      }
+
+      const startIndex = (page - 1) * 20;
+      const endIndex = page * 20;
+      return filteredItems
+      .sort((a, b) => b.createdAt
+      .getTime() - a.createdAt.getTime())
+      .slice(startIndex, endIndex);
+  }
+
   async findManyBySellerId(sellerId: string,
     { page }: PaginationParams
   ): Promise<Product[]> {

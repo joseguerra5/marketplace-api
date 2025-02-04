@@ -8,6 +8,7 @@ export enum ProductStatus {
   cancelled = "cancelled",
   sold = "sold",
 }
+
 export interface ProductProps {
   categoryId: UniqueEntityId
   sellerId: UniqueEntityId
@@ -15,7 +16,7 @@ export interface ProductProps {
   description: string
   priceInCents: number
   attachments: ProductAttachmentList
-  status?: ProductStatus | null
+  status: ProductStatus | null
   createdAt: Date
   updatedAt?: Date | null
 }
@@ -103,7 +104,7 @@ export class Product extends Entity<ProductProps> {
   }
 
   static create(
-    props: Optional<ProductProps, "createdAt" | "attachments">, id?: UniqueEntityId
+    props: Optional<ProductProps, "createdAt" | "attachments" | "status">, id?: UniqueEntityId
   ): Product {
     const product = new Product({
       ...props,
