@@ -1,10 +1,8 @@
 import { PaginationParams, PaginationProductsParams } from "@/core/repositories/pagination-params";
-import { ProductRepository } from "@/domain/marketplace/application/repositories/product-repository";
+import { Count, ProductRepository } from "@/domain/marketplace/application/repositories/product-repository";
 import { Product } from "@/domain/marketplace/enterprise/entities/product";
 
 export class InMemoryProductRepository implements ProductRepository {
-  
- 
   public items: Product[] = [];
 
   async save(product: Product): Promise<void> {
@@ -22,38 +20,49 @@ export class InMemoryProductRepository implements ProductRepository {
     return product;
   }
 
-  async findMany({page}: PaginationParams): Promise<Product[]> {
+  async count({ sellerId, from, status }: Count): Promise<number> {
+    const amount = this.items.filter((item) => {
+      const matchSeller = item.sellerId.toString() === sellerId
+      const matchesStatus = status ? item.status === status : true
+      const matchesDate = from ? new Date(item.createdAt) >= new Date(from) : true
+      return matchSeller && matchesDate && matchesStatus
+    }).length
+
+    return amount
+  }
+
+  async findMany({ page }: PaginationParams): Promise<Product[]> {
     const Product = this.items
-    .slice((page - 1) * 20, page * 20)
+      .slice((page - 1) * 20, page * 20)
 
     return Product
   }
 
-  async findManyWithParams({page, search, status, sellerId}: PaginationProductsParams): Promise<Product[]> {
-      let filteredItems = this.items;
+  async findManyWithParams({ page, search, status, sellerId }: PaginationProductsParams): Promise<Product[]> {
+    let filteredItems = this.items;
 
-      if(sellerId) {
-        filteredItems = filteredItems.filter(item =>
-          item.sellerId.toString() === sellerId
+    if (sellerId) {
+      filteredItems = filteredItems.filter(item =>
+        item.sellerId.toString() === sellerId
       );
-      }
+    }
 
-      if(search) {
-        filteredItems = filteredItems.filter(item =>
-          item.title.toLowerCase().includes(search.toLowerCase()) ||
-          item.description.toLowerCase().includes(search.toLowerCase())
+    if (search) {
+      filteredItems = filteredItems.filter(item =>
+        item.title.toLowerCase().includes(search.toLowerCase()) ||
+        item.description.toLowerCase().includes(search.toLowerCase())
       );
-      }
+    }
 
-      if (status) {
-        filteredItems = filteredItems.filter(item => item.status === status);
-      }
+    if (status) {
+      filteredItems = filteredItems.filter(item => item.status === status);
+    }
 
-      const startIndex = (page - 1) * 20;
-      const endIndex = page * 20;
-      return filteredItems
+    const startIndex = (page - 1) * 20;
+    const endIndex = page * 20;
+    return filteredItems
       .sort((a, b) => b.createdAt
-      .getTime() - a.createdAt.getTime())
+        .getTime() - a.createdAt.getTime())
       .slice(startIndex, endIndex);
   }
 
@@ -67,6 +76,13 @@ export class InMemoryProductRepository implements ProductRepository {
     return Product
   }
 
+  async findAllBySellerId(sellerId: string): Promise<Product[]> {
+    const Product = this.items
+      .filter((item) => item.sellerId.toString() === sellerId)
+
+
+    return Product
+  }
 
   async create(attach: Product): Promise<void> {
     this.items.push(attach)

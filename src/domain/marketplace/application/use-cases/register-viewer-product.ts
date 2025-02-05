@@ -26,7 +26,7 @@ export class RegisterViewerUseCase {
     productId,
     viewerId
   }: RegisterViewerUseCaseRequest): Promise<RegisterViewerUseCaseResponse> {
-    const seller = await this.sellerRepository.findByid(viewerId)
+    const seller = await this.sellerRepository.findById(viewerId)
 
     if (!seller) {
       return left(new ValuesNotFoundError("Seller"))
@@ -43,7 +43,7 @@ export class RegisterViewerUseCase {
     }
 
     const viewAlreadyRegister = await this.viewerRepository.findByViewerId(viewerId, productId)
-   
+
     if (viewAlreadyRegister) {
       return left(new ViewerIsOwnerProduct())
     }

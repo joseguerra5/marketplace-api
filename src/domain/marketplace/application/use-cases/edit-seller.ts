@@ -35,7 +35,7 @@ export class EditSellerUseCase {
     sellerId
   }: EditSellerUseCaseRequest): Promise<EditSellerUseCaseResponse> {
     let hasChanges = false
-    const seller = await this.sellerRepository.findByid(sellerId)
+    const seller = await this.sellerRepository.findById(sellerId)
 
     if (!seller) {
       return left(new NotAllowedError())

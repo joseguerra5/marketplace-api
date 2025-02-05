@@ -8,6 +8,7 @@ import { makeProduct } from "test/factories/make-product";
 import { ChangeProductStatusBySellerIdUseCase } from "./change-product-status";
 import { NotAllowedError } from "@/core/errors/not-allowed-error";
 import { ProductWithSameStatus } from "./errors/same-status";
+import { ProductStatus } from "../../enterprise/entities/product";
 
 let inMemoryProductRepository: InMemoryProductRepository
 let inMemorySellerRepository: InMemorySellerRepository
@@ -34,7 +35,7 @@ describe("Edit Seller", () => {
     const result = await sut.execute({
       sellerId: seller.id.toString(),
       productId: product.id.toString(),
-      status: "cancelled"
+      status: ProductStatus.cancelled
     })
 
     expect(result.isRight()).toBeTruthy()
@@ -50,13 +51,13 @@ describe("Edit Seller", () => {
     const category = makeCategory()
     await inMemoryCategoryRepository.create(category)
 
-    const product = makeProduct({ sellerId: seller.id, categoryId: category.id, status: "sold" })
+    const product = makeProduct({ sellerId: seller.id, categoryId: category.id, status: ProductStatus.sold })
     await inMemoryProductRepository.create(product)
 
     const result = await sut.execute({
       sellerId: seller.id.toString(),
       productId: product.id.toString(),
-      status: "cancelled"
+      status: ProductStatus.cancelled
     })
 
     expect(result.isLeft()).toBeTruthy()
@@ -73,13 +74,13 @@ describe("Edit Seller", () => {
     const category = makeCategory()
     await inMemoryCategoryRepository.create(category)
 
-    const product = makeProduct({ sellerId: seller.id, categoryId: category.id, status: "sold" })
+    const product = makeProduct({ sellerId: seller.id, categoryId: category.id, status: ProductStatus.sold })
     await inMemoryProductRepository.create(product)
 
     const result = await sut.execute({
       sellerId: "wrong-seller-id",
       productId: product.id.toString(),
-      status: "cancelled"
+      status: ProductStatus.cancelled
     })
 
     expect(result.isLeft()).toBeTruthy()

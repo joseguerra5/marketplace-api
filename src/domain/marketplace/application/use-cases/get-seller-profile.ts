@@ -1,6 +1,5 @@
 import { Either, left, right } from "@/core/either"
 import { ValuesNotFoundError } from "./errors/value-not-found"
-import { ProductRepository } from "../repositories/product-repository"
 import { Seller } from "../../enterprise/entities/seller"
 import { SellerRepository } from "../repositories/seller-repository"
 
@@ -20,7 +19,7 @@ export class GetSellerProfileUseCase {
   async execute({
     sellerId
   }: GetSellerProfileUseCaseRequest): Promise<GetSellerProfileUseCaseResponse> {
-    const seller = await this.sellerRepository.findByid(sellerId)
+    const seller = await this.sellerRepository.findById(sellerId)
 
     if (!seller) {
       return left(new ValuesNotFoundError("seller"))

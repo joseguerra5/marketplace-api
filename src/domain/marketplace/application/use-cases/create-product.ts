@@ -36,7 +36,7 @@ export class CreateProductUseCase {
     priceInCents,
     attachmentsIds,
   }: CreateProductUseCaseRequest): Promise<CreateProductUseCaseResponse> {
-    const seller = await this.sellerRepository.findByid(sellerId)
+    const seller = await this.sellerRepository.findById(sellerId)
 
     if (!seller) {
       return left(new ValuesNotFoundError("Seller"))

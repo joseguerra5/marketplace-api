@@ -3,8 +3,8 @@ import { UniqueEntityId } from "@/core/entities/unique-entity-id";
 import { Optional } from "@/core/types/optional";
 
 export interface ViewProps {
-  productId: string
-  viewerId: string
+  productId: UniqueEntityId
+  viewerId: UniqueEntityId
   createdAt: Date
 }
 

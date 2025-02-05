@@ -15,7 +15,7 @@ export class InMemorySellerRepository implements SellerRepository {
     this.items[itemIndex] = seller;
   }
 
-  async findByid(id: string): Promise<Seller | null> {
+  async findById(id: string): Promise<Seller | null> {
     const student = this.items.find((item) => item.id.toString() === id);
 
     if (!student) {

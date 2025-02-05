@@ -19,7 +19,7 @@ describe("Register viwer", () => {
   beforeEach(() => {
     inMemoryProductRepository = new InMemoryProductRepository()
     inMemorySellerRepository = new InMemorySellerRepository()
-    inMemoryViewRepository = new InMemoryViewRepository()
+    inMemoryViewRepository = new InMemoryViewRepository(inMemoryProductRepository)
     inMemoryCategoryRepository = new InMemoryCategoryRepository()
     sut = new RegisterViewerUseCase(inMemoryViewRepository, inMemoryProductRepository, inMemorySellerRepository)
   });

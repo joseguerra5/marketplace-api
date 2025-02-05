@@ -27,7 +27,7 @@ export class GetProductsBySellerIdUseCase {
     status,
     sellerId
   }: GetProductsUseCaseRequest): Promise<GetProductsUseCaseResponse> {
-    const seller = await this.sellerRepository.findByid(sellerId)
+    const seller = await this.sellerRepository.findById(sellerId)
 
     if (!seller) {
       return left(new ValuesNotFoundError("Seller"))

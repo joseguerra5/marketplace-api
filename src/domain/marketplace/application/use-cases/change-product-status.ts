@@ -27,7 +27,7 @@ export class ChangeProductStatusBySellerIdUseCase {
     sellerId,
     productId,
   }: ChangeProductStatusUseCaseRequest): Promise<ChangeProductStatusUseCaseResponse> {
-    const seller = await this.sellerRepository.findByid(sellerId)
+    const seller = await this.sellerRepository.findById(sellerId)
 
     if (!seller) {
       return left(new NotAllowedError())
@@ -53,7 +53,7 @@ export class ChangeProductStatusBySellerIdUseCase {
 
     product.status = status
 
-    await this.productRepository.save(product) 
+    await this.productRepository.save(product)
 
     return right({
       product
